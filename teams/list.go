@@ -1,6 +1,6 @@
 package teams
 
-var index int = 0;
+var teamListIndex int = 1;
 var listOfTeams = []Team{}
 
 func List() []Team {
