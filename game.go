@@ -8,5 +8,6 @@ import (
 func main(){
 	fmt.Println("Hello world")
 	teams.Create("Real Madrid", 90)
+	teams.Create("Barcelona", 90)
 	fmt.Println(teams.List())
 }
