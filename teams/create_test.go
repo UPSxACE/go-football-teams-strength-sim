@@ -84,3 +84,26 @@ func TestCreateInvalidStrength(t *testing.T){
 	testStrengthError(0)
 	testStrengthError(100)	
 }
+
+func TestCreateInvalidName(t *testing.T){
+	teamStrength := 50
+
+	testInvalidName := func(invalidName string){
+		initialIndex := teamListIndex
+	
+		_, err := Create(invalidName, teamStrength)
+	
+		// It's also checking if the if the index updated (it should not update since the team was not created)
+		indexUpdated := teamListIndex == initialIndex+1
+	
+		if err == nil || indexUpdated {
+			t.Fatalf(`Create(%q, %v) = %v, %v, want %v, error`,
+			invalidName, teamStrength, teamListIndex, err, initialIndex)
+		}
+	}
+
+	testInvalidName("invalid!because special characters")
+	testInvalidName("invalid#")
+	testInvalidName(")=#")
+	testInvalidName("this is a name that is too big because its bigger than 50 characters")
+}
