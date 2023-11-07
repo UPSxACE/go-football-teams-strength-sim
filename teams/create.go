@@ -6,10 +6,10 @@ import (
 )
 
 /*Create a team
-	Name needs to use only normal characters and numbers
-	Name cannot be empty
-	Name cannot be bigger than 50 characters
-	Strength needs to be a number between 1 and 99
+Name needs to use only normal characters and numbers
+Name cannot be empty
+Name cannot be bigger than 50 characters
+Strength needs to be a number between 1 and 99
 */
 func Create(name string, strength int) (Team, error){
 	if(name == ""){
@@ -25,6 +25,10 @@ func Create(name string, strength int) (Team, error){
 	if(!onlyLettersNumbersSpaces.MatchString(name)){
 		return Team{}, errors.New("teams.Create: invalid characters in name")
 	}	
+
+	if(strength < 1 || strength > 99){
+		return Team{}, errors.New("teams.Create: invalid strength")
+	}
 
 	teamId := teamListIndex;
 	teamListIndex++;

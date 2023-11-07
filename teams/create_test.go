@@ -62,3 +62,25 @@ func TestCreateEmptyName(t *testing.T){
 			teamName, teamStrength, teamListIndex, err, initialIndex)
 	}
 }
+
+func TestCreateInvalidStrength(t *testing.T){
+	teamName := "This is a valid name"
+
+	testStrengthError := func(invalidStrength int){
+		initialIndex := teamListIndex
+
+		_, err := Create(teamName, invalidStrength)
+	
+		// It's also checking if the if the index updated (it should not update since the team was not created)
+		indexUpdated := teamListIndex == initialIndex+1
+	
+		if err == nil || indexUpdated {
+			t.Fatalf(`Create(%q, %v) = %v, %v, want %v, error`,
+				teamName, invalidStrength, teamListIndex, err, initialIndex)
+		}
+	}
+	
+	testStrengthError(-50)
+	testStrengthError(0)
+	testStrengthError(100)	
+}
