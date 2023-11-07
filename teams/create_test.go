@@ -45,3 +45,20 @@ func TestCreate(t *testing.T){
 	}
 
 }
+
+func TestCreateEmptyName(t *testing.T){
+	teamName := ""
+	teamStrength := 50
+
+	initialIndex := teamListIndex
+
+	_, err := Create(teamName, teamStrength)
+
+	// It's also checking if the if the index updated (it should not update since the team was not created)
+	indexUpdated := teamListIndex == initialIndex+1
+
+	if err == nil || indexUpdated {
+		t.Fatalf(`Create(%q, %v) = %v, %v, want %v, error`,
+			teamName, teamStrength, teamListIndex, err, initialIndex)
+	}
+}
