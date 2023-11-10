@@ -5,11 +5,28 @@ import "github.com/UPSxACE/go-football-teams-strength-sim/teams"
 type League struct {
 	currentPhase int
 	totalPhases  int
+	currentRound int
+	totalRounds  int
 	started      bool
 	isOver       bool
 	winner       string
 	participants []teams.Team
-	leaderboard map[int]int
+	leaderboard  map[teamId]teamPoints
+	schedule     map[roundNumber][]Match
+}
+
+type teamId int
+type teamPoints int
+type roundNumber int
+
+type Match struct {
+	homeTeam TeamInMatch
+	awayTeam TeamInMatch
+}
+
+type TeamInMatch struct {
+	teamId string
+	teamScore int
 }
 
 func (league *League) HasStarted() bool{
