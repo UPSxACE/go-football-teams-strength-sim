@@ -6,12 +6,16 @@ type League struct {
 	currentPhase int
 	totalPhases  int
 	started      bool
+	isOver       bool
 	winner       string
 	participants []teams.Team
 	leaderboard map[int]int
 }
 
 func (league *League) HasStarted() bool{
+	return false;
+}
+func (league *League) IsOver() bool{
 	return false;
 }
 func (league *League) GetWinner() string{
