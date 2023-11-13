@@ -7,5 +7,6 @@ import (
 func main(){
 	game.OpeningScreen()
 	game.CreateTeams()
+	game.SimulateTournament()
 	game.EndingScreen()
 }

@@ -6,6 +6,7 @@ import (
 )
 
 /*Create a team
+
 Name needs to use only normal characters and numbers
 Name cannot be empty
 Name cannot be bigger than 50 characters
