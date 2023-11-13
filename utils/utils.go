@@ -49,6 +49,23 @@ func LineMessage(message string) string {
 	return result
 }
 
+func removeFromSlice(slice []interface{}, index int) (newSlice []interface{}, removedElement interface{}) {
+	removed := slice[index]
+    return append(slice[:index], slice[index+1:]...), removed
+}
+
+/*Remove from unordered slice
+
+This function is greatly faster than removeFromSlice, because instead of moving every element to the left,
+it just places the last element in the position of the removed element.
+Because of that, it only makes sense to use it in a slice in which the order does not matter!
+*/
+func removeFromUnorderedSlice(slice []interface{}, index int) (newSlice []interface{}, removedElement interface{}) {
+	removed := slice[index]
+    slice[index] = slice[len(slice)-1]
+    return slice[:len(slice)-1], removed
+}
+
 func initClear() func(){
 	switch runtime.GOOS {
 		case "linux":
