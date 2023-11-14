@@ -50,6 +50,7 @@ type TeamInMatch struct {
 	teamScore int
 }
 
+// The calendarHelper will be used to help on the proccess of creating the schedule.
 type calendarHelper map[teamId]calendarHelperData
 
 type calendarHelperData struct {
