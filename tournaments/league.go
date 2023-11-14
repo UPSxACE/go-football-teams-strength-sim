@@ -9,17 +9,19 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/UPSxACE/go-football-teams-strength-sim/teams"
 	"github.com/UPSxACE/go-football-teams-strength-sim/utils"
 )
 
 type League struct {
-	currentPhase int
-	totalPhases  int
+	currentPhase int // each Next() advances one phase
+	totalPhases  int // in this case equivalent to the number match days
 	currentRound int
 	totalRounds  int
-	started      bool
+	started      bool // changed to true after Init()
 	isOver       bool
 	winner       string
 	participants []teams.Team
@@ -63,6 +65,20 @@ func (league *League) IsOver() bool{
 }
 func (league *League) GetWinner() string{
 	return league.winner;
+}
+func (league *League) mirrorRound(roundToMirrorNumber roundNumber) {
+	newMatchDays := make(MatchDays)
+	for dayNumber,dayMatches := range league.schedule[roundToMirrorNumber]{
+		newDayMatches := make([]Match, 0, len(dayMatches))
+		for _,match := range dayMatches{
+			newMatch := Match{}
+			newMatch.homeTeam.teamId = match.awayTeam.teamId
+			newMatch.awayTeam.teamId = match.homeTeam.teamId
+			newDayMatches = append(newDayMatches, newMatch)
+		}
+		newMatchDays[dayNumber] = newDayMatches
+	}
+	league.schedule[roundToMirrorNumber+1] = newMatchDays;
 }
 func (league *League) Init(){
 	fmt.Println(utils.LineMessage("LEAGUE BUILDER"))
@@ -113,8 +129,13 @@ func (league *League) Init(){
 		calendarHelper[teamId(team.Id)] = calendarHelperData{0,0}
 	 }
 	for round := roundNumber(1); round <= roundNumber(rounds); round++ {
-		// if i > 2
 
+		if(round >= 2){
+			// Rounds that are not the first one, are just copies of the previous round,
+			// but with every match having it's home team and it's away team swapped
+			league.mirrorRound(round - 1)
+			continue;
+		}
 		
 		league.schedule[round] = MatchDays{}
 		idealDayForMatch := 1
@@ -341,14 +362,59 @@ func (league *League) Init(){
 			poolQueue = append(poolQueue, rightSubpool)
 		}
 		
-
-
-
 	}
+
+	
+	totalPhases := 0
+	for _,matchDays := range league.schedule{
+		totalPhases += len(matchDays)
+	}
+	
+	league.totalPhases = totalPhases
+	league.totalRounds = rounds;
+	league.currentRound = 1;
+	league.started = true
 }
 func (league *League) NextPhase(){
 }
 func (league *League) Render(){
-	fmt.Println(league.schedule)
+	for round := 1; round <= len(league.schedule); round++{
+		matchDays := league.schedule[roundNumber(round)]
+		fmt.Printf("-------------------Round %02d--------------------\n", round)
+		for day := 1; day <= len(matchDays); day ++ {
+			matches := matchDays[day]
+			fmt.Printf("           ---------Day %02d----------          \n", day)
+			for _, match := range matches {
+				homeTeam := ""
+				awayTeam := ""
+
+				for _, team := range league.participants{
+					if(team.Id == int(match.homeTeam.teamId)){
+						homeTeam = team.Name
+					}
+					if(team.Id == int(match.awayTeam.teamId)){
+						awayTeam = team.Name
+					}
+				}
+
+				sizeHomeTeamName := utf8.RuneCountInString(homeTeam);
+				sizeAwayTeamName := utf8.RuneCountInString(awayTeam);
+
+				if(sizeHomeTeamName > 20){
+					homeTeam = homeTeam[:17]+"..."
+					sizeHomeTeamName = 20;
+				}
+				if(sizeAwayTeamName > 20){
+					awayTeam = awayTeam[:17]+"..."
+					sizeAwayTeamName = 20;
+				}
+
+				spacesLeft := strings.Repeat(" ", 20 -  sizeHomeTeamName)
+				spacesRight := strings.Repeat(" ", 20 - sizeAwayTeamName)
+
+				fmt.Println("  " + homeTeam + spacesLeft + " x " + spacesRight + awayTeam +"  \n")
+			}
+		}
+	}
 	league.isOver = true
 }
