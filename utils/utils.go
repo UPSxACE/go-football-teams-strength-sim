@@ -33,6 +33,14 @@ func PressAnyKey() {
 	})
 }
 
+func PressAnyKeyMsg(message string){
+	fmt.Println(message)
+
+	keyboard.Listen(func(key keys.Key) (stop bool, err error) {
+		return true, nil
+	})
+}
+
 func LineMessage(message string) string {
 	var size int;
 	size = utf8.RuneCountInString(message);
