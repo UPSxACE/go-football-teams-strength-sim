@@ -12,6 +12,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/UPSxACE/go-football-teams-strength-sim/menu"
 	"github.com/UPSxACE/go-football-teams-strength-sim/teams"
 	"github.com/UPSxACE/go-football-teams-strength-sim/utils"
 )
@@ -32,6 +33,7 @@ type League struct {
 type teamId int
 
 type LeaderboardData struct {
+	teamId teamId
 	teamPoints int
 	gamesPlayed int
 }
@@ -115,7 +117,7 @@ func (league *League) Init(){
 	league.schedule = make(map[roundNumber]MatchDays)
 	
 	for _, team := range league.participants {
-		league.leaderboard[teamId(team.Id)] = LeaderboardData{0,0}
+		league.leaderboard[teamId(team.Id)] = LeaderboardData{teamId(team.Id), 0,0}
 	}
 
 	var matchesPerDay int
@@ -375,10 +377,17 @@ func (league *League) Init(){
 	league.totalRounds = rounds;
 	league.currentRound = 1;
 	league.started = true
+
+	fmt.Println("A new tournament was successfully created!")
+	utils.PressAnyKeyMsg("Press any key to see the schedule generated...")
+	utils.Clear()
+	league.renderWholeSchedule()
 }
 func (league *League) NextPhase(){
 }
-func (league *League) Render(){
+
+func (league *League) renderWholeSchedule(){
+	fmt.Println("-------------------SCHEDULE--------------------")
 	for round := 1; round <= len(league.schedule); round++{
 		matchDays := league.schedule[roundNumber(round)]
 		fmt.Printf("-------------------Round %02d--------------------\n", round)
@@ -417,5 +426,79 @@ func (league *League) Render(){
 			}
 		}
 	}
-	league.isOver = true
+	
+	utils.PressAnyKey()
+	utils.Clear()
+}
+
+func (league *League) renderLeaderboard(){
+	fmt.Println(utils.LineMessage("LEAGUE LEADERBOARD"))
+	teamName:= "TEAM NAME"
+	teamNameSize := utf8.RuneCountInString(teamName)
+	spaces := strings.Repeat(" ", 51 -  teamNameSize)
+	fmt.Printf("##. %v GP | PT\n", teamName + spaces)
+
+	sortedLeaderbord := make([]LeaderboardData, 0, len(league.leaderboard))
+	for _, teamData := range league.leaderboard {
+		sortedLeaderbord = append(sortedLeaderbord, teamData)
+	}
+	sort.SliceStable(sortedLeaderbord, func(i, j int) bool {
+		if sortedLeaderbord[i].teamPoints == sortedLeaderbord[j].teamPoints{
+			return sortedLeaderbord[i].gamesPlayed > sortedLeaderbord[j].gamesPlayed
+		}
+		return sortedLeaderbord[i].teamPoints > sortedLeaderbord[j].teamPoints
+	})
+	for index, data := range sortedLeaderbord {
+		teamName:= ""
+
+		for _, team := range league.participants{
+			if(team.Id == int(data.teamId)){
+				teamName = team.Name
+			}
+		}
+
+		teamNameSize := utf8.RuneCountInString(teamName)
+
+		spaces := strings.Repeat(" ", 51 -  teamNameSize)
+
+		fmt.Printf("%02d. %v %02d | %02d\n", index+1, teamName + spaces, data.gamesPlayed, data.teamPoints)
+	}
+	utils.LineMessage("")
+	utils.PressAnyKey()
+	utils.Clear()
+}
+
+func (league *League) Render(){
+	fmt.Println(utils.LineMessage("LEAGUE SIMULATION"))
+	if(league.currentPhase == 0){
+		switch league.started {
+			case false:
+				log.Fatalf("league.Render: Tried rendering a league that wasn't initialized yet!")
+			case true:
+				fmt.Println("Select an action:")
+				menu1 := menu.Menu{}
+				menu1.AddOption("1", "1","1. Start tournament")
+				menu1.AddOption("2", "2", "2. See leaderboard")
+				menu1.AddOption("3", "3", "3. See schedule")
+				menu1.AddOption("q", "q", "Q. Quit the simulation")
+				menu1.RenderMenu()
+				answer := menu1.Listen();
+
+				utils.Clear()
+				switch answer {
+					case "1":
+						league.NextPhase()
+						break;
+					case "2":
+						league.renderLeaderboard()
+						break;
+					case "3":
+						league.renderWholeSchedule()
+						break;
+					case "q":
+						league.isOver = true;
+						break;
+				}
+		}
+	}
 }

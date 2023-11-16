@@ -12,6 +12,7 @@ import (
 )
 
 func CreateTeams() {
+	fmt.Println(utils.LineMessage("TEAM BUILDER"))
 	reader := bufio.NewReader(os.Stdin)
 	selectedOption := ""
 

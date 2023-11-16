@@ -2,6 +2,7 @@ package game
 
 import (
 	"github.com/UPSxACE/go-football-teams-strength-sim/tournaments"
+	"github.com/UPSxACE/go-football-teams-strength-sim/utils"
 )
 
 func SimulateTournament() {
@@ -9,6 +10,7 @@ func SimulateTournament() {
 	tournament = &tournaments.League{}
 
 	tournament.Init()
+	utils.Clear()
 
 	for tournament.IsOver() != true {
 		tournament.Render()
